@@ -434,28 +434,6 @@
             color: rgba(255,255,255,0.5);
         }
         
-        .book-info-display {
-            padding: 15px;
-            background: white;
-        }
-        
-        .book-title-display {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 5px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
-        
-        .book-author-display {
-            font-size: 0.85rem;
-            color: #666;
-        }
-        
         .shelf-line {
             height: 15px;
             background: linear-gradient(to bottom, #6F5539 0%, #5C4A31 50%, #6F5539 100%);
@@ -769,9 +747,6 @@
             .book-item:nth-child(3),
             .book-item:nth-child(4),
             .book-item:nth-child(5) { display: none; }
-            .book-info-display { padding: 10px; }
-            .book-title-display { font-size: 0.82rem; }
-            .book-author-display { font-size: 0.75rem; }
             .bookshelf-wrapper { padding: 25px 12px; border-radius: 14px; }
         }
     </style>
@@ -896,10 +871,6 @@
                                     <i class="fas fa-book"></i>
                                 @endif
                             </div>
-                            <div class="book-info-display">
-                                <div class="book-title-display">{{ $book->title }}</div>
-                                <div class="book-author-display">{{ $book->author }}</div>
-                            </div>
                         </div>
                         @endforeach
                     @else
@@ -908,10 +879,6 @@
                         <div class="book-item">
                             <div class="book-cover-display" style="background: {{ $colors[$i] }};">
                                 <i class="fas fa-book"></i>
-                            </div>
-                            <div class="book-info-display">
-                                <div class="book-title-display">Buku {{ $i + 1 }}</div>
-                                <div class="book-author-display">Penulis {{ $i + 1 }}</div>
                             </div>
                         </div>
                         @endfor
