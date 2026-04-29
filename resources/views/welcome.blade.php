@@ -32,7 +32,7 @@
         
         /* HEADER */
         .header {
-            background: #3a2a23;
+            background: #1E1410;
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255,255,255,0.06);
@@ -475,75 +475,9 @@
             filter: blur(6px);
         }
         
-        /* CTA SECTION */
-        .cta {
-            background: linear-gradient(to bottom, #8B6F47 0%, #7A5F3D 50%, #6F5539 100%);
-            padding: 80px 30px;
-            text-align: center;
-            color: white;
-        }
-        
-        .cta-container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        
-        .cta h2 {
-            font-family: 'Crimson Pro', serif;
-            font-size: 2.8rem;
-            font-weight: 700;
-            margin-bottom: 25px;
-        }
-        
-        .cta p {
-            font-size: 1.2rem;
-            margin-bottom: 40px;
-            opacity: 0.95;
-            line-height: 1.6;
-        }
-        
-        .cta-buttons {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .btn-cta {
-            padding: 15px 40px;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .btn-cta-primary {
-            background: white;
-            color: var(--wood-dark);
-        }
-        
-        .btn-cta-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(255,255,255,0.3);
-        }
-        
-        .btn-cta-secondary {
-            background: transparent;
-            color: white;
-            border: 2px solid white;
-        }
-        
-        .btn-cta-secondary:hover {
-            background: rgba(255,255,255,0.15);
-        }
-        
         /* FOOTER */
         .footer {
-            background: #3a2a23;
+            background: #1E1410;
             color: rgba(255,255,255,0.8);
             padding: 60px 30px 30px;
         }
@@ -777,16 +711,50 @@
             .bookshelf-wrapper { padding: 35px 20px; border-radius: 16px; }
             .header-buttons { display: none; }
             .mobile-user-btn { display: flex; }
-            .hero { padding: 50px 20px; }
-            .hero-left h1 { font-size: 2.2rem; }
-            .hero-left p { font-size: 1rem; }
-            .hero-logo { width: 220px; height: 220px; }
-            .hero-logo img { width: 160px; }
+
+            /* Hero mobile: mirip referensi */
+            .hero { padding: 40px 24px 55px; }
+            .hero-container {
+                grid-template-columns: 1fr;
+                gap: 0;
+                text-align: left;
+            }
+            .hero-right { display: none; }
+
+            /* Badge: 1 baris, font lebih kecil */
+            .hero-badge {
+                font-size: 0.75rem;
+                padding: 6px 12px;
+                white-space: nowrap;
+            }
+
+            .hero-left h1 { font-size: 2.1rem; }
+            .hero-left p { font-size: 0.95rem; margin-bottom: 28px; }
+
+            /* Tombol: jejer kiri-kanan (flex-row), sama lebar */
+            .hero-buttons {
+                flex-direction: row;
+                gap: 10px;
+                margin-bottom: 36px;
+            }
+            .btn-hero-primary,
+            .btn-hero-secondary {
+                flex: 1;
+                justify-content: center;
+                padding: 13px 10px;
+                font-size: 0.9rem;
+            }
+
+            /* Stats: kecil, tetap 3 kolom jejer */
+            .hero-stats { justify-content: flex-start; gap: 0; }
+            .hero-stat-item {
+                padding-right: 20px;
+                margin-right: 20px;
+            }
+            .hero-stat-item .stat-number { font-size: 1.5rem; }
+            .hero-stat-item .stat-label { font-size: 0.72rem; }
+
             .section-title { font-size: 2rem; }
-            .cta h2 { font-size: 2rem; }
-            .cta p { font-size: 1rem; }
-            .cta-buttons { flex-direction: column; align-items: center; }
-            .btn-cta { width: 100%; max-width: 300px; justify-content: center; }
             .footer-content { grid-template-columns: 1fr; gap: 30px; }
             .tentang { padding: 70px 20px; }
             .tentang-card { padding: 35px 25px; }
@@ -834,7 +802,7 @@
                 <h1>Perpustakaan Digital Terpercaya</h1>
                 <p>Kelola koleksi buku dengan mudah, pantau peminjaman real-time, dan akses katalog digital kapan saja, di mana saja dengan sistem yang aman dan transparan.</p>
                 <div class="hero-buttons">
-                    <a href="/register" class="btn-hero-primary"><i class="fas fa-heart"></i> Mulai Sekarang</a>
+                    <a href="/register" class="btn-hero-primary"><i class="fas fa-book-open"></i> Mulai Sekarang</a>
                     <a href="#tentang" class="btn-hero-secondary">Tentang Kami &rarr;</a>
                 </div>
                 <!-- STATS DARI DATABASE -->
@@ -986,22 +954,6 @@
                 <p>Digishelf adalah platform perpustakaan digital yang dikelola secara amanah dan transparan. Kami hadir untuk memudahkan pengelolaan koleksi buku, peminjaman, dan administrasi perpustakaan secara digital.</p>
                 <p>Setiap data yang masuk dikelola dengan penuh tanggung jawab, dan laporan aktivitas perpustakaan dapat diakses secara berkala untuk menjaga kepercayaan seluruh anggota.</p>
                 <a href="/register" class="btn-tentang">Bergabung Sekarang &rarr;</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA -->
-    <section class="cta">
-        <div class="cta-container">
-            <h2>Siap Berbuat Kebaikan?</h2>
-            <p>Bergabunglah sekarang dan jadilah bagian dari perpustakaan digital yang transparan dan terpercaya</p>
-            <div class="cta-buttons">
-                <a href="/register" class="btn-cta btn-cta-primary">
-                    <i class="fas fa-user-plus"></i> Daftar Gratis
-                </a>
-                <a href="/login" class="btn-cta btn-cta-secondary">
-                    <i class="fas fa-sign-in-alt"></i> Masuk ke Akun
-                </a>
             </div>
         </div>
     </section>
