@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -37,9 +38,11 @@ class AuthController extends Controller
             return $this->redirectByRole();
         }
 
-        return back()->withErrors([
-            'email' => 'Email atau password salah.',
-        ])->onlyInput('email');
+        return back()
+            ->withErrors([
+                'email' => 'Email atau password salah.',
+            ])
+            ->withInput($request->only('email'));
     }
 
     public function register(Request $request)
@@ -54,7 +57,7 @@ class AuthController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role' => 'user', // Default role
+            'role' => 'user',
         ]);
 
         // AUTO LOGIN SETELAH REGISTER
@@ -71,6 +74,47 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('login')->with('success', 'Anda telah logout');
+    }
+
+    // ───── Google OAuth ─────
+
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function handleGoogleCallback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')->user();
+        } catch (\Exception $e) {
+            return redirect('/login')->withErrors(['email' => 'Login dengan Google gagal. Silakan coba lagi.']);
+        }
+
+        // Cari user berdasarkan email
+        $user = User::where('email', $googleUser->getEmail())->first();
+
+        if ($user) {
+            // User sudah ada — langsung login
+            Auth::login($user);
+            request()->session()->regenerate();
+            return $this->redirectByRole();
+        }
+
+        // User belum ada — buat akun baru otomatis
+        $user = User::create([
+            'name'     => $googleUser->getName(),
+            'email'    => $googleUser->getEmail(),
+            'password' => Hash::make(\Illuminate\Support\Str::random(24)),
+            'role'     => 'user',
+            'google_id' => $googleUser->getId(),
+        ]);
+
+        Auth::login($user);
+        request()->session()->regenerate();
+
+        return redirect()->route('user.dashboard')
+            ->with('success', 'Akun berhasil dibuat via Google! Selamat datang, ' . $user->name . '.');
     }
 
     private function redirectByRole()
