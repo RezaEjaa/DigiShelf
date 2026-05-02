@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BorrowController;
 use App\Http\Controllers\Api\BookApiController;
+use App\Http\Controllers\FavoriteController;
 
 Route::get('/', function () { return view('welcome'); });
 
@@ -33,6 +34,8 @@ Route::middleware(['auth', 'role:user'])->group(function () {
     Route::post('/pinjam/{id}', [BorrowController::class, 'store'])->name('borrow.store');
     Route::put('/profile/update', [UserController::class, 'update'])->name('profile.update');
     Route::delete('/profile/delete', [UserController::class, 'destroy'])->name('profile.delete');
+    Route::post('/favorit/{id}/add', [FavoriteController::class, 'add'])->name('favorite.add');
+    Route::post('/favorit/{id}/remove', [FavoriteController::class, 'remove'])->name('favorite.remove');
 });
 
 // Admin
@@ -58,5 +61,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 });
 
+
+
 // API
-// Route::get('/api/books/{id}', [BookApiController::class, 'show']);
+// Route::get('/books/{id}', [BookApiController::class, 'show'])->name('api.books.show');

@@ -1,54 +1,5 @@
-@extends('layouts.app')
+@extends('layouts.app-navbar')
 @section('title', 'Peminjaman - Digishelf')
-@section('page-title', 'Peminjaman')
-@section('page-subtitle', 'Buku yang sedang dipinjam')
-@section('sidebar-menu')
-    <li>
-        <a href="{{ route('user.dashboard') }}">
-            <i class="fas fa-th-large"></i>
-            <span>Dashboard</span>
-        </a>
-    </li>
-    <li>
-        <a href="{{ route('user.books') }}">
-            <i class="fas fa-book"></i>
-            <span>Koleksi Buku</span>
-        </a>
-    </li>
-    <li>
-        <a href="{{ route('user.borrowings') }}" class="active">
-            <i class="fas fa-book-reader"></i>
-            <span>Peminjaman</span>
-        </a>
-    </li>
-    <li>
-        <a href="{{ route('user.history') }}">
-            <i class="fas fa-history"></i>
-            <span>Riwayat Peminjaman</span>
-        </a>
-    </li>
-    <li>
-        <a href="{{ route('user.favorites') }}">
-            <i class="fas fa-heart"></i>
-            <span>Favorit Saya</span>
-        </a>
-    </li>
-    <li class="logout-section">
-        <a href="{{ route('user.account') }}">
-            <i class="fas fa-user-circle"></i>
-            <span>Akun</span>
-        </a>
-    </li>
-    <li>
-        <form action="{{ route('logout') }}" method="POST" class="logout-form">
-            @csrf
-            <button type="submit">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
-            </button>
-        </form>
-    </li>
-@endsection
 
 @section('content')
     <style>

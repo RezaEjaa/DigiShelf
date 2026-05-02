@@ -1,375 +1,374 @@
 @extends('layouts.app-navbar')
-
 @section('title', 'Dashboard - Digishelf')
-
-@section('navbar-menu')
-    <li><a href="{{ route('user.dashboard') }}" class="active"><i class="fas fa-th-large"></i> Dashboard</a></li>
-    <li><a href="{{ route('user.books') }}"><i class="fas fa-book"></i> Koleksi Buku</a></li>
-    <li><a href="{{ route('user.borrowings') }}"><i class="fas fa-book-reader"></i> Peminjaman</a></li>
-    <li><a href="{{ route('user.history') }}"><i class="fas fa-history"></i> Riwayat</a></li>
-    <li><a href="{{ route('user.favorites') }}"><i class="fas fa-heart"></i> Favorit</a></li>
-    <li><a href="{{ route('user.account') }}"><i class="fas fa-user-circle"></i> Akun</a></li>
-@endsection
 
 @section('content')
 <style>
-    .welcome-banner {
-        background: linear-gradient(135deg, var(--wood-medium), var(--wood-dark));
-        color: white;
+    /* ── HERO ── */
+    .dash-hero {
+        background: linear-gradient(150deg, #4A3728 0%, #3A2A1E 50%, #2E2018 100%);
         border-radius: 20px;
         padding: 50px 40px;
-        margin-bottom: 30px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    }
-    .welcome-banner h1 {
-        font-family: 'Crimson Pro', serif;
-        font-size: 2.5rem;
-        margin-bottom: 10px;
-    }
-    .welcome-banner p {
-        font-size: 1.1rem;
-        opacity: 0.95;
-    }
-    
-    .stats-grid {
+        margin-bottom: 35px;
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 25px;
-        margin-bottom: 40px;
-    }
-    .stat-card {
-        background: white;
-        border-radius: 15px;
-        padding: 30px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        transition: all 0.3s;
-    }
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-    }
-    .stat-header {
-        display: flex;
-        justify-content: space-between;
+        grid-template-columns: 1fr auto;
+        gap: 30px;
         align-items: center;
-        margin-bottom: 20px;
+        position: relative;
+        overflow: hidden;
     }
-    .stat-icon {
-        width: 60px;
-        height: 60px;
-        background: linear-gradient(135deg, var(--wood-medium), var(--wood-dark));
-        border-radius: 15px;
-        display: flex;
+    .dash-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23CFBB99' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        pointer-events: none;
+    }
+
+    .hero-badge {
+        display: inline-flex;
         align-items: center;
+        gap: 7px;
+        background: rgba(212,165,116,0.15);
+        border: 1px solid rgba(212,165,116,0.3);
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: #D4A574;
+        margin-bottom: 16px;
+    }
+
+    .hero-left h1 {
+        font-family: 'Crimson Pro', serif;
+        font-size: 2.4rem;
+        font-weight: 700;
+        color: #FFF8EE;
+        margin-bottom: 10px;
+        line-height: 1.2;
+    }
+
+    .hero-left p {
+        font-size: 0.95rem;
+        color: rgba(255,248,230,0.62);
+        line-height: 1.7;
+    }
+
+    .hero-right {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 16px;
+        padding: 28px 32px;
+        text-align: center;
+        min-width: 240px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .hero-logo {
+        width: 64px;
+        height: 64px;
+    }
+    .hero-logo img { width: 100%; height: 100%; object-fit: contain; }
+
+    .hero-stats {
+        display: flex;
+        gap: 24px;
+        width: 100%;
         justify-content: center;
     }
-    .stat-icon i {
-        font-size: 28px;
-        color: white;
+
+    .hero-stat-box {
+        background: rgba(255,255,255,0.07);
+        border-radius: 12px;
+        padding: 14px 20px;
+        flex: 1;
     }
-    .stat-value {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: var(--wood-dark);
-        margin-bottom: 5px;
-    }
-    .stat-label {
-        color: #666;
-        font-size: 0.95rem;
-    }
-    
-    .section {
-        background: white;
-        border-radius: 20px;
-        padding: 35px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        margin-bottom: 30px;
-    }
-    .section-title {
+
+    .hero-stat-num {
         font-family: 'Crimson Pro', serif;
         font-size: 1.8rem;
         font-weight: 700;
-        color: var(--text-dark);
-        margin-bottom: 25px;
+        color: #D4A574;
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    .hero-stat-label {
+        font-size: 0.72rem;
+        color: rgba(255,248,230,0.55);
+    }
+
+    /* ── SECTION ── */
+    .section {
+        background: white;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+        margin-bottom: 30px;
+    }
+
+    .section-head {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        margin-bottom: 25px;
     }
+
+    .section-head h2 {
+        font-family: 'Crimson Pro', serif;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
     .view-all {
-        font-size: 0.9rem;
+        font-size: 0.88rem;
         color: var(--wood-medium);
         text-decoration: none;
-        font-weight: 500;
-        transition: color 0.3s;
-    }
-    .view-all:hover {
-        color: var(--wood-dark);
-    }
-    
-    .borrowing-list {
-        display: grid;
-        gap: 15px;
-    }
-    .borrowing-item {
-        background: var(--cream);
-        border-radius: 12px;
-        padding: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        transition: all 0.3s;
-    }
-    .borrowing-item:hover {
-        transform: translateX(5px);
-    }
-    .borrowing-info h4 {
-        color: var(--text-dark);
-        font-size: 1.05rem;
-        margin-bottom: 5px;
         font-weight: 600;
+        transition: color 0.2s;
     }
-    .borrowing-info p {
-        color: #666;
-        font-size: 0.85rem;
-        margin: 0;
-    }
-    .borrowing-status {
-        text-align: right;
-    }
-    .status-badge {
-        display: inline-block;
-        padding: 6px 16px;
+    .view-all:hover { color: var(--wood-dark); }
+
+    /* ── BOOKSHELF (sama seperti welcome) ── */
+    .bookshelf-wrapper {
+        background: linear-gradient(to bottom, #8B6F47 0%, #7A5F3D 50%, #6F5539 100%);
         border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        margin-bottom: 5px;
+        padding: 40px 25px;
+        box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+        position: relative;
     }
-    .status-badge.active {
-        background: #E8F5E9;
-        color: #2E7D32;
+
+    .bookshelf-wrapper::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: repeating-linear-gradient(90deg,transparent,transparent 2px,rgba(0,0,0,0.05) 2px,rgba(0,0,0,0.05) 4px);
+        pointer-events: none;
+        border-radius: 20px;
     }
-    .status-badge.overdue {
-        background: #FFEBEE;
-        color: #C62828;
-    }
-    .due-date {
-        color: #666;
-        font-size: 0.8rem;
-    }
-    
-    .books-showcase {
+
+    .books-display {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 25px;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+        position: relative;
+        z-index: 1;
     }
-    .book-showcase-card {
+
+    .book-item-dash {
         background: white;
-        border-radius: 12px;
+        border-radius: 8px;
         overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        box-shadow: 3px 3px 10px rgba(0,0,0,0.3);
         transition: all 0.3s;
         cursor: pointer;
+        aspect-ratio: 2/3;
     }
-    .book-showcase-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+
+    .book-item-dash:hover {
+        transform: translateY(-10px) rotate(2deg);
+        box-shadow: 5px 10px 20px rgba(0,0,0,0.4);
     }
-    .book-cover-showcase {
+
+    .book-cover-dash {
         width: 100%;
-        height: 250px;
-        background: linear-gradient(135deg, #A1887F, #8D6E63);
+        height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
+        overflow: hidden;
     }
-    .book-cover-showcase img {
-        width: 100%;
-        height: 100%;
+
+    .book-cover-dash img {
+        width: 100%; height: 100%;
         object-fit: cover;
     }
-    .book-cover-showcase i {
-        font-size: 48px;
-        color: rgba(255,255,255,0.5);
+
+    .book-cover-dash i { font-size: 40px; color: rgba(255,255,255,0.4); }
+
+    .shelf-line {
+        height: 12px;
+        background: linear-gradient(to bottom, #6F5539 0%, #5C4A31 50%, #6F5539 100%);
+        border-radius: 4px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        position: relative;
+        z-index: 1;
     }
-    .book-info-showcase {
-        padding: 15px;
+
+    /* ── BORROWING LIST ── */
+    .borrowing-list { display: grid; gap: 14px; }
+
+    .borrowing-item {
+        background: var(--cream);
+        border-radius: 12px;
+        padding: 18px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
     }
-    .book-title-showcase {
-        font-size: 0.95rem;
+
+    .borrowing-item:hover {
+        transform: translateX(4px);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    }
+
+    .borrowing-info h4 {
+        font-size: 0.98rem;
         font-weight: 600;
         color: var(--text-dark);
-        margin-bottom: 5px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        margin-bottom: 4px;
     }
-    .book-author-showcase {
-        font-size: 0.85rem;
-        color: #666;
+
+    .borrowing-info p {
+        color: #777;
+        font-size: 0.82rem;
+        margin: 0;
     }
-    
+
+    .status-badge {
+        display: inline-block;
+        padding: 5px 14px;
+        border-radius: 20px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+    .status-badge.active   { background: #E8F5E9; color: #2E7D32; }
+    .status-badge.overdue  { background: #FFEBEE; color: #C62828; }
+    .status-badge.due-soon { background: #FFF3E0; color: #E65100; }
+
+    .due-date { font-size: 0.78rem; color: #999; }
+
     .empty-state {
         text-align: center;
-        padding: 60px 20px;
-        color: #999;
+        padding: 50px 20px;
+        color: #aaa;
     }
-    .empty-state i {
-        font-size: 64px;
-        margin-bottom: 20px;
-        opacity: 0.5;
+    .empty-state i { font-size: 52px; margin-bottom: 15px; opacity: 0.4; display: block; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+        .books-display { grid-template-columns: repeat(4, 1fr); }
+        .book-item-dash:nth-child(n+4) { display: none; }
+        .dash-hero { grid-template-columns: 1fr; }
+        .hero-right { min-width: auto; }
     }
-    
+
     @media (max-width: 768px) {
-        .welcome-banner {
-            padding: 35px 25px;
-        }
-        .welcome-banner h1 {
-            font-size: 2rem;
-        }
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
-        .borrowing-item {
-            flex-direction: column;
-            text-align: center;
-            gap: 15px;
-        }
-        .borrowing-status {
-            text-align: center;
-        }
-        .books-showcase {
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-        }
+        .dash-hero { padding: 36px 24px; }
+        .hero-left h1 { font-size: 1.8rem; }
+        .books-display { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .book-item-dash:nth-child(n+4) { display: none; }
+        .bookshelf-wrapper { padding: 28px 15px; }
+        .borrowing-item { flex-direction: column; align-items: flex-start; gap: 12px; }
+        .section { padding: 22px 18px; }
+    }
+
+    @media (max-width: 480px) {
+        .books-display { grid-template-columns: repeat(2, 1fr); }
+        .book-item-dash:nth-child(n+3) { display: none; }
+        .hero-stats { gap: 12px; }
     }
 </style>
 
-<div class="welcome-banner">
-    <h1>Selamat Datang, {{ Auth::user()->name }}!</h1>
-    <p>Jelajahi koleksi buku digital dan kelola peminjaman Anda dengan mudah</p>
-</div>
-
-<div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">{{ $stats['total_books'] }}</div>
-                <div class="stat-label">Total Buku</div>
-            </div>
-            <div class="stat-icon">
-                <i class="fas fa-book"></i>
-            </div>
-        </div>
+{{-- HERO --}}
+<div class="dash-hero">
+    <div class="hero-left">
+        <div class="hero-badge"><i class="fas fa-heart"></i> Halo, {{ Auth::user()->name }}!</div>
+        <h1>Selamat Datang di<br>Perpustakaan Digital</h1>
+        <p>Temukan koleksi buku terbaik, pantau peminjaman,<br>dan kelola favorit Anda dengan mudah.</p>
     </div>
-
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">{{ $stats['active_borrowings'] }}</div>
-                <div class="stat-label">Sedang Dipinjam</div>
-            </div>
-            <div class="stat-icon">
-                <i class="fas fa-book-open"></i>
-            </div>
+    <div class="hero-right">
+        <div class="hero-logo">
+            <img src="{{ asset('img/ui/logo.png') }}" alt="Digishelf">
         </div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">{{ $stats['borrowing_history'] }}</div>
-                <div class="stat-label">Riwayat Peminjaman</div>
+        <div class="hero-stats">
+            <div class="hero-stat-box">
+                <div class="hero-stat-num">{{ $stats['total_books'] }}</div>
+                <div class="hero-stat-label">Total Buku</div>
             </div>
-            <div class="stat-icon">
-                <i class="fas fa-history"></i>
-            </div>
-        </div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-header">
-            <div>
-                <div class="stat-value">{{ $stats['total_favorites'] }}</div>
-                <div class="stat-label">Total Favorit</div>
-            </div>
-            <div class="stat-icon">
-                <i class="fas fa-heart"></i>
+            <div class="hero-stat-box">
+                <div class="hero-stat-num">{{ $stats['active_borrowings'] }}</div>
+                <div class="hero-stat-label">Peminjaman Anda</div>
             </div>
         </div>
     </div>
 </div>
 
+{{-- BUKU TERBARU --}}
 <div class="section">
-    <div class="section-title">
-        <span>Peminjaman Aktif</span>
+    <div class="section-head">
+        <h2>Buku Terbaru</h2>
+        <a href="{{ route('user.books') }}" class="view-all">Lihat Semua →</a>
+    </div>
+
+    <div class="bookshelf-wrapper">
+        @php
+            $colors = [
+                'linear-gradient(135deg, #A1887F, #8D6E63)',
+                'linear-gradient(135deg, #7986CB, #5C6BC0)',
+                'linear-gradient(135deg, #81C784, #66BB6A)',
+                'linear-gradient(135deg, #FFB74D, #FFA726)',
+                'linear-gradient(135deg, #E57373, #EF5350)',
+                'linear-gradient(135deg, #9575CD, #7E57C2)',
+            ];
+        @endphp
+        <div class="books-display">
+            @forelse($recommendedBooks as $index => $book)
+                <div class="book-item-dash" onclick="window.location='{{ route('user.books') }}'">
+                    <div class="book-cover-dash" style="background: {{ $colors[$index % 6] }};">
+                        @if($book->cover_image)
+                            <img src="{{ asset('img/covers/' . $book->cover_image) }}" alt="{{ $book->title }}">
+                        @else
+                            <i class="fas fa-book"></i>
+                        @endif
+                    </div>
+                </div>
+            @empty
+                <p style="color:rgba(255,255,255,0.7); grid-column: 1/-1; text-align:center; padding:30px 0;">Belum ada buku</p>
+            @endforelse
+        </div>
+        <div class="shelf-line"></div>
+    </div>
+</div>
+
+{{-- SEDANG DIPINJAM --}}
+<div class="section">
+    <div class="section-head">
+        <h2>Sedang Dipinjam</h2>
         <a href="{{ route('user.borrowings') }}" class="view-all">Lihat Semua →</a>
     </div>
-    
+
     @if($activeBorrowings->count() > 0)
         <div class="borrowing-list">
             @foreach($activeBorrowings as $borrowing)
-            <div class="borrowing-item">
-                <div class="borrowing-info">
-                    <h4>{{ $borrowing->book->title }}</h4>
-                    <p><i class="fas fa-calendar"></i> Dipinjam: {{ $borrowing->borrowed_date->format('d M Y') }}</p>
+                <div class="borrowing-item">
+                    <div class="borrowing-info">
+                        <h4>{{ $borrowing->book->title }}</h4>
+                        <p><i class="fas fa-calendar"></i> Dipinjam: {{ $borrowing->borrowed_date->format('d M Y') }}</p>
+                    </div>
+                    <div style="text-align:right">
+                        @if($borrowing->isOverdue())
+                            <span class="status-badge overdue">Terlambat</span>
+                        @elseif($borrowing->isDueSoon())
+                            <span class="status-badge due-soon">Segera Jatuh Tempo</span>
+                        @else
+                            <span class="status-badge active">Aktif</span>
+                        @endif
+                        <div class="due-date">Jatuh tempo: {{ $borrowing->due_date->format('d M Y') }}</div>
+                    </div>
                 </div>
-                <div class="borrowing-status">
-                    @if($borrowing->status === 'overdue')
-                        <span class="status-badge overdue">Terlambat</span>
-                    @else
-                        <span class="status-badge active">Aktif</span>
-                    @endif
-                    <div class="due-date">Jatuh tempo: {{ $borrowing->due_date->format('d M Y') }}</div>
-                </div>
-            </div>
             @endforeach
         </div>
     @else
         <div class="empty-state">
             <i class="fas fa-book-open"></i>
-            <p>Anda belum memiliki peminjaman aktif</p>
-        </div>
-    @endif
-</div>
-
-<div class="section">
-    <div class="section-title">
-        <span>Rekomendasi Untuk Anda</span>
-        <a href="{{ route('user.books') }}" class="view-all">Lihat Semua →</a>
-    </div>
-    
-    @if($recommendedBooks->count() > 0)
-        <div class="books-showcase">
-            @php
-                $colors = [
-                    'linear-gradient(135deg, #A1887F, #8D6E63)',
-                    'linear-gradient(135deg, #7986CB, #5C6BC0)',
-                    'linear-gradient(135deg, #81C784, #66BB6A)',
-                    'linear-gradient(135deg, #FFB74D, #FFA726)',
-                    'linear-gradient(135deg, #E57373, #EF5350)',
-                    'linear-gradient(135deg, #9575CD, #7E57C2)',
-                ];
-            @endphp
-            @foreach($recommendedBooks as $index => $book)
-            <div class="book-showcase-card" onclick="window.location.href='{{ route('user.books') }}'">
-                <div class="book-cover-showcase" style="background: {{ $colors[$index % 6] }};">
-                    @if($book->cover_image)
-                        <img src="{{ asset('img/covers/' . $book->cover_image) }}" alt="{{ $book->title }}">
-                    @else
-                        <i class="fas fa-book"></i>
-                    @endif
-                </div>
-                <div class="book-info-showcase">
-                    <div class="book-title-showcase">{{ $book->title }}</div>
-                    <div class="book-author-showcase">{{ $book->author }}</div>
-                </div>
-            </div>
-            @endforeach
-        </div>
-    @else
-        <div class="empty-state">
-            <i class="fas fa-book"></i>
-            <p>Belum ada buku tersedia</p>
+            <p>Belum ada peminjaman aktif</p>
         </div>
     @endif
 </div>

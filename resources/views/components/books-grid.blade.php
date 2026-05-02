@@ -123,16 +123,50 @@
     .book-item {
         background: white;
         border-radius: 8px;
-        overflow: hidden;
+        overflow: visible;
         box-shadow: 0 6px 15px rgba(0,0,0,0.25);
         transition: all 0.3s;
         cursor: pointer;
         aspect-ratio: 2/3;
+        position: relative;
     }
 
     .book-item:hover {
         transform: translateY(-10px) rotate(2deg);
         box-shadow: 0 12px 25px rgba(0,0,0,0.35);
+    }
+
+    /* Fav button - overlay pojok kanan atas */
+    .fav-btn {
+        position: absolute;
+        top: 7px;
+        right: 7px;
+        width: 28px;
+        height: 28px;
+        background: rgba(255,255,255,0.9);
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        font-size: 0.72rem;
+        color: #ccc;
+        /* PENTING: transition HANYA untuk transform, bukan color */
+        transition: transform 0.15s;
+    }
+
+    /* Hover: HANYA scale, warna TIDAK berubah */
+    .fav-btn:hover {
+        transform: scale(1.2);
+    }
+
+    /* Active (sudah difavoritkan): merah */
+    .fav-btn.active {
+        color: #E53935;
+        background: white;
     }
 
     .book-cover-only {
@@ -143,6 +177,8 @@
         align-items: center;
         justify-content: center;
         position: relative;
+        border-radius: 8px;
+        overflow: hidden;
     }
 
     .book-cover-only img {
@@ -508,7 +544,7 @@
     @media (max-width: 768px) {
         .books-grid {
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+            gap: 12px;
         }
 
         .pagination-wrapper {
@@ -517,7 +553,7 @@
         }
 
         .bookshelf-wrapper {
-            padding: 20px;
+            padding: 20px 15px;
         }
 
         .modal-header {
@@ -540,7 +576,19 @@
             flex-direction: column;
         }
     }
+
+    @media (max-width: 480px) {
+        .books-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .bookshelf-wrapper {
+            padding: 15px 10px;
+        }
+    }
+
 </style>
+
 
 {{-- Search Bar --}}
 @if($showSearch)
@@ -578,16 +626,34 @@
         }
         
         $chunkedBooks = array_chunk($displayBooks, 6);
+
+        // Favorit IDs user yang sedang login
+        $favoriteIds = [];
+        if (Auth::check()) {
+            $favoriteIds = \App\Models\Favorite::where('user_id', Auth::id())->pluck('book_id')->toArray();
+        }
     @endphp
 
     @if(count($booksArray) > 0 || $showSearch)
+        {{-- Hint teks --}}
+        <p style="text-align:center; font-size:0.82rem; color:var(--wood-medium); margin-bottom:16px; opacity:0.8;">
+            <i class="fas fa-hand-pointer"></i> Klik cover buku untuk melihat detail dan melakukan peminjaman
+        </p>
         @foreach($chunkedBooks as $rowIndex => $rowBooks)
             <div class="shelf-row">
                 <div class="books-grid">
                     @foreach($rowBooks as $index => $book)
                         @if($book)
-                            <div class="book-item" onclick="openBookModal({{ $book->id }})">
-                                <div class="book-cover-only" style="background: {{ $colors[$index % 6] }};">
+                            <div class="book-item" style="position:relative;">
+                                {{-- Fav button (hanya untuk user biasa) --}}
+                                @if(Auth::check() && Auth::user()->role === 'user')
+                                    <button class="fav-btn {{ in_array($book->id, $favoriteIds) ? 'active' : '' }}"
+                                            onclick="event.stopPropagation(); toggleFav(this, {{ $book->id }})"
+                                            title="Favorit">
+                                        <i class="fas fa-heart"></i>
+                                    </button>
+                                @endif
+                                <div class="book-cover-only" style="background: {{ $colors[$index % 6] }};" onclick="openBookModal({{ $book->id }})">
                                     @if($book->cover_image)
                                         <img src="{{ asset('img/covers/' . $book->cover_image) }}" alt="{{ $book->title }}">
                                     @else
@@ -882,6 +948,39 @@ function escapeHtml(text) {
         "'": '&#039;'
     };
     return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+function toggleFav(btn, bookId) {
+    const isActive = btn.classList.contains('active');
+    const url = isActive
+        ? `/favorit/${bookId}/remove`
+        : `/favorit/${bookId}/add`;
+
+    // Optimistic UI: langsung toggle dulu
+    btn.classList.toggle('active');
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        }
+    })
+    .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+    })
+    .then(data => {
+        if (!data.success) {
+            // Rollback jika gagal
+            btn.classList.toggle('active');
+        }
+    })
+    .catch(() => {
+        // Rollback jika error
+        btn.classList.toggle('active');
+    });
 }
 
 document.addEventListener('keydown', function(e) {

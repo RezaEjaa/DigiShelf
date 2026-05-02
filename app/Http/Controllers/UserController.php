@@ -84,16 +84,46 @@ class UserController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|min:8|confirmed',
-        ]);
-        $user->name = $validated['name'];
-        $user->email = $validated['email'];
-        if ($request->filled('password')) {
-            $user->password = Hash::make($validated['password']);
+
+        // Validasi nama selalu
+        $rules = ['name' => 'required|string|max:255'];
+
+        // Google user: skip email & password validation
+        if (!$user->google_id) {
+            $rules['email']    = 'required|email|unique:users,email,' . $user->id;
+            $rules['password'] = 'nullable|min:8|confirmed';
         }
+
+        // Foto profil opsional
+        $rules['profile_photo'] = 'nullable|image|mimes:jpeg,png,webp|max:2048';
+
+        $validated = $request->validate($rules);
+
+        $user->name = $validated['name'];
+
+        // Update email & password hanya untuk non-Google
+        if (!$user->google_id) {
+            $user->email = $validated['email'];
+            if ($request->filled('password')) {
+                $user->password = Hash::make($validated['password']);
+            }
+        }
+
+        // Handle foto profil upload
+        if ($request->hasFile('profile_photo')) {
+            // Hapus foto lama jika ada
+            if ($user->profile_photo) {
+                $oldPath = public_path('img/profile_photos/' . $user->profile_photo);
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
+            }
+            $file     = $request->file('profile_photo');
+            $filename = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('img/profile_photos'), $filename);
+            $user->profile_photo = $filename;
+        }
+
         $user->save();
         return redirect()->route('user.account')->with('success', 'Akun berhasil diupdate');
     }

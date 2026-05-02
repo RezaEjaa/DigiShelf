@@ -32,7 +32,7 @@
         
         /* HEADER */
         .header {
-            background: #1E1410;
+            background: #2c201b;
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255,255,255,0.06);
@@ -455,7 +455,7 @@
         
         /* FOOTER */
         .footer {
-            background: #1E1410;
+            background: #2c201b;
             color: rgba(255,255,255,0.8);
             padding: 60px 30px 30px;
         }
