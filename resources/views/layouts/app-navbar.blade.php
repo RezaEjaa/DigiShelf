@@ -318,6 +318,11 @@
             .footer-content { grid-template-columns: 1fr; gap: 28px; }
             .footer { padding: 38px 20px 20px; }
         }
+
+        @media (max-width: 360px) {
+            .main-content { padding: 12px 8px; }
+            .header-container { padding: 0 12px; }
+        }
     </style>
 
     @stack('styles')

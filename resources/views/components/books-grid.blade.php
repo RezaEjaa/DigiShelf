@@ -113,7 +113,7 @@
 
     .books-grid {
         display: grid;
-        grid-template-columns: repeat(6, 1fr);
+        grid-template-columns: repeat(5, 1fr);
         gap: 20px;
         position: relative;
         z-index: 1;
@@ -535,56 +535,47 @@
         cursor: not-allowed;
     }
 
-    @media (max-width: 1200px) {
-        .books-grid {
-            grid-template-columns: repeat(4, 1fr);
-        }
-    }
+    /* Shelf sets: show/hide per breakpoint */
+    .shelf-laptop { display: block; }
+    .shelf-tablet { display: none; }
+    .shelf-mobile { display: none; }
 
+    .books-grid-5 { grid-template-columns: repeat(5, 1fr); }
+    .books-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .books-grid-2 { grid-template-columns: repeat(2, 1fr); }
+
+    /* Tablet ≤768px — sama dengan favorites */
     @media (max-width: 768px) {
-        .books-grid {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-
-        .pagination-wrapper {
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .bookshelf-wrapper {
-            padding: 20px 15px;
-        }
-
-        .modal-header {
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-
-        .modal-cover-small {
-            width: 140px;
-            height: 210px;
-        }
-
-        .detail-row {
-            grid-template-columns: 1fr;
-            gap: 4px;
-        }
-
-        .modal-actions {
-            flex-direction: column;
-        }
+        .shelf-laptop { display: none; }
+        .shelf-tablet { display: block; }
+        .shelf-mobile { display: none; }
+        .pagination-wrapper { flex-direction: column; gap: 15px; }
+        .bookshelf-wrapper { padding: 25px 15px; }
+        .shelf-row { margin-bottom: 40px; }
+        .modal-header { flex-direction: column; align-items: center; text-align: center; }
+        .modal-cover-small { width: 140px; height: 210px; }
+        .detail-row { grid-template-columns: 1fr; gap: 4px; }
+        .modal-actions { flex-direction: column; }
     }
 
+    /* HP ≤480px — sama dengan favorites */
     @media (max-width: 480px) {
-        .books-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
+        .shelf-laptop { display: none; }
+        .shelf-tablet { display: none; }
+        .shelf-mobile { display: block; }
+        .bookshelf-wrapper { padding: 15px 10px; }
+        .shelf-row { margin-bottom: 35px; }
+    }
+
+    /* 320px: padding sangat kecil agar buku tidak overflow */
+    @media (max-width: 360px) {
         .bookshelf-wrapper {
-            padding: 15px 10px;
+            padding: 12px 6px;
+            border-radius: 12px;
         }
+        .books-grid-2 { gap: 6px; }
+        .shelf-row { margin-bottom: 28px; }
+        .shelf-board { left: -6px; right: -6px; }
     }
 
 </style>
@@ -618,58 +609,135 @@
         ];
         
         $booksArray = $books->items();
-        $totalSlots = 24;
-        
-        $displayBooks = [];
-        for ($i = 0; $i < $totalSlots; $i++) {
-            $displayBooks[] = $booksArray[$i] ?? null;
-        }
-        
-        $chunkedBooks = array_chunk($displayBooks, 6);
 
-        // Favorit IDs user yang sedang login
+        // 3 versi chunk sesuai breakpoint
+        $books5 = array_chunk(array_pad(array_values($booksArray), ceil(count($booksArray)/5)*5, null), 5);  // laptop
+        $books3 = array_chunk(array_pad(array_values($booksArray), ceil(count($booksArray)/3)*3, null), 3);  // tablet
+        $books2 = array_chunk(array_pad(array_values($booksArray), ceil(count($booksArray)/2)*2, null), 2);  // HP
+
+        // Favorit IDs
         $favoriteIds = [];
         if (Auth::check()) {
             $favoriteIds = \App\Models\Favorite::where('user_id', Auth::id())->pluck('book_id')->toArray();
         }
+        $isAdmin = Auth::check() && Auth::user()->role === 'admin';
     @endphp
 
     @if(count($booksArray) > 0 || $showSearch)
-        {{-- Hint teks --}}
-        <p style="text-align:center; font-size:0.82rem; color:var(--wood-medium); margin-bottom:16px; opacity:0.8;">
-            <i class="fas fa-hand-pointer"></i> Klik cover buku untuk melihat detail dan melakukan peminjaman
-        </p>
-        @foreach($chunkedBooks as $rowIndex => $rowBooks)
-            <div class="shelf-row">
-                <div class="books-grid">
-                    @foreach($rowBooks as $index => $book)
-                        @if($book)
-                            <div class="book-item" style="position:relative;">
-                                {{-- Fav button (hanya untuk user biasa) --}}
-                                @if(Auth::check() && Auth::user()->role === 'user')
-                                    <button class="fav-btn {{ in_array($book->id, $favoriteIds) ? 'active' : '' }}"
-                                            onclick="event.stopPropagation(); toggleFav(this, {{ $book->id }})"
-                                            title="Favorit">
-                                        <i class="fas fa-heart"></i>
-                                    </button>
-                                @endif
-                                <div class="book-cover-only" style="background: {{ $colors[$index % 6] }};" onclick="openBookModal({{ $book->id }})">
-                                    @if($book->cover_image)
-                                        <img src="{{ asset('img/covers/' . $book->cover_image) }}" alt="{{ $book->title }}">
-                                    @else
-                                        <i class="fas fa-book"></i>
+        {{-- Hint teks kontras --}}
+        <div style="text-align:center; margin-bottom:18px;">
+            <span style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);padding:7px 18px;border-radius:20px;font-size:0.82rem;font-weight:500;color:#FFF8EE;">
+                <i class="fas fa-hand-pointer"></i>
+                @if($isAdmin)
+                    Klik cover buku untuk melihat detail dan melakukan perubahan
+                @else
+                    Klik cover buku untuk melihat detail dan melakukan peminjaman
+                @endif
+            </span>
+        </div>
+
+        @php
+        // Macro render baris buku
+        $renderBook = function($book, $index, $favoriteIds, $isAdmin, $colors) {
+            return $book; // hanya untuk referensi — pakai @foreach langsung
+        };
+        @endphp
+
+        {{-- LAPTOP: chunk 5, tampil hanya ≥769px --}}
+        <div class="shelf-laptop">
+            @foreach($books5 as $row)
+                <div class="shelf-row">
+                    <div class="books-grid books-grid-5">
+                        @foreach($row as $idx => $book)
+                            @if($book)
+                                <div class="book-item">
+                                    @if(!$isAdmin)
+                                        <button class="fav-btn {{ in_array($book->id, $favoriteIds) ? 'active' : '' }}"
+                                                onclick="event.stopPropagation(); toggleFav(this, {{ $book->id }})" title="Favorit">
+                                            <i class="fas fa-heart"></i>
+                                        </button>
                                     @endif
+                                    <div class="book-cover-only" style="background: {{ $colors[$idx % 6] }};" onclick="openBookModal({{ $book->id }})">
+                                        @if($book->cover_image)
+                                            <img src="{{ asset('img/covers/' . $book->cover_image) }}" alt="{{ $book->title }}">
+                                        @else
+                                            <i class="fas fa-book"></i>
+                                        @endif
+                                    </div>
                                 </div>
-                            </div>
-                        @else
-                            <div style="visibility: hidden;"></div>
-                        @endif
-                    @endforeach
+                            @else
+                                <div style="visibility:hidden;aspect-ratio:2/3;"></div>
+                            @endif
+                        @endforeach
+                    </div>
+                    <div class="shelf-board"></div>
                 </div>
-                
-                <div class="shelf-board"></div>
-            </div>
-        @endforeach
+            @endforeach
+        </div>
+
+        {{-- TABLET: chunk 3, tampil hanya 481px–768px --}}
+        <div class="shelf-tablet">
+            @foreach($books3 as $row)
+                <div class="shelf-row">
+                    <div class="books-grid books-grid-3">
+                        @foreach($row as $idx => $book)
+                            @if($book)
+                                <div class="book-item">
+                                    @if(!$isAdmin)
+                                        <button class="fav-btn {{ in_array($book->id, $favoriteIds) ? 'active' : '' }}"
+                                                onclick="event.stopPropagation(); toggleFav(this, {{ $book->id }})" title="Favorit">
+                                            <i class="fas fa-heart"></i>
+                                        </button>
+                                    @endif
+                                    <div class="book-cover-only" style="background: {{ $colors[$idx % 6] }};" onclick="openBookModal({{ $book->id }})">
+                                        @if($book->cover_image)
+                                            <img src="{{ asset('img/covers/' . $book->cover_image) }}" alt="{{ $book->title }}">
+                                        @else
+                                            <i class="fas fa-book"></i>
+                                        @endif
+                                    </div>
+                                </div>
+                            @else
+                                <div style="visibility:hidden;aspect-ratio:2/3;"></div>
+                            @endif
+                        @endforeach
+                    </div>
+                    <div class="shelf-board"></div>
+                </div>
+            @endforeach
+        </div>
+
+        {{-- HP: chunk 2, tampil hanya ≤480px --}}
+        <div class="shelf-mobile">
+            @foreach($books2 as $row)
+                <div class="shelf-row">
+                    <div class="books-grid books-grid-2">
+                        @foreach($row as $idx => $book)
+                            @if($book)
+                                <div class="book-item">
+                                    @if(!$isAdmin)
+                                        <button class="fav-btn {{ in_array($book->id, $favoriteIds) ? 'active' : '' }}"
+                                                onclick="event.stopPropagation(); toggleFav(this, {{ $book->id }})" title="Favorit">
+                                            <i class="fas fa-heart"></i>
+                                        </button>
+                                    @endif
+                                    <div class="book-cover-only" style="background: {{ $colors[$idx % 6] }};" onclick="openBookModal({{ $book->id }})">
+                                        @if($book->cover_image)
+                                            <img src="{{ asset('img/covers/' . $book->cover_image) }}" alt="{{ $book->title }}">
+                                        @else
+                                            <i class="fas fa-book"></i>
+                                        @endif
+                                    </div>
+                                </div>
+                            @else
+                                <div style="visibility:hidden;aspect-ratio:2/3;"></div>
+                            @endif
+                        @endforeach
+                    </div>
+                    <div class="shelf-board"></div>
+                </div>
+            @endforeach
+        </div>
 
         @if($books->hasPages())
             <div class="pagination-wrapper">
@@ -725,118 +793,111 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
 const API_BASE_URL = '{{ url('/') }}';
+
+// Data buku dari server — TANPA loading, langsung tersedia
+const booksData = {
+    @foreach($booksArray as $b)
+    {{ $b->id }}: {
+        id: {{ $b->id }},
+        title: {!! json_encode($b->title, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) !!},
+        author: {!! json_encode($b->author, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) !!},
+        isbn: {!! json_encode($b->isbn ?? '', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) !!},
+        publisher: {!! json_encode($b->publisher ?? '', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) !!},
+        publication_year: {{ $b->publication_year ?? 'null' }},
+        description: {!! json_encode($b->description ?? '', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) !!},
+        stock: {{ $b->stock }},
+        available: {{ $b->available }},
+        cover_image: {!! json_encode($b->cover_image ?? '', JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) !!},
+    },
+    @endforeach
+};
 
 function openBookModal(bookId) {
     const modal = document.getElementById('bookModal');
     const modalBody = document.getElementById('modalBody');
-    
+    const book = booksData[bookId];
+
+    if (!book) {
+        modalBody.innerHTML = `<div style="text-align:center;padding:40px;"><i class="fas fa-exclamation-triangle" style="font-size:40px;color:#E57373;"></i><p style="margin-top:20px;color:var(--wood-medium);">Data buku tidak ditemukan.</p></div>`;
+        modal.classList.add('active');
+        return;
+    }
+
+    const isAdmin = {{ Auth::check() && Auth::user()->role === 'admin' ? 'true' : 'false' }};
+
     modalBody.innerHTML = `
-        <div style="text-align: center; padding: 40px;">
-            <i class="fas fa-spinner fa-spin" style="font-size: 40px; color: var(--wood-medium);"></i>
-            <p style="margin-top: 20px; color: var(--wood-medium);">Memuat detail buku...</p>
+        <div class="modal-header">
+            <div class="modal-cover-small">
+                ${book.cover_image
+                    ? `<img src="${API_BASE_URL}/img/covers/${book.cover_image}" alt="${escapeHtml(book.title)}">`
+                    : `<i class="fas fa-book"></i>`
+                }
+            </div>
+            <div class="modal-title-section">
+                <h2 class="modal-title">${escapeHtml(book.title)}</h2>
+                <p class="modal-author">oleh ${escapeHtml(book.author)}</p>
+            </div>
+        </div>
+
+        <div class="modal-details-grid">
+            <div class="detail-row">
+                <span class="detail-label">ISBN</span>
+                <span class="detail-value">${escapeHtml(book.isbn) || '-'}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Penerbit</span>
+                <span class="detail-value">${escapeHtml(book.publisher) || '-'}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Tahun Terbit</span>
+                <span class="detail-value">${book.publication_year || '-'}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Ketersediaan</span>
+                <span class="detail-value">
+                    <span class="stock-badge ${book.available > 0 ? 'available' : 'unavailable'}">
+                        <i class="fas fa-circle"></i>
+                        ${book.available} dari ${book.stock} tersedia
+                    </span>
+                </span>
+            </div>
+        </div>
+
+        ${book.description ? `
+            <div class="modal-description">
+                <h4>Deskripsi</h4>
+                <p>${escapeHtml(book.description)}</p>
+            </div>
+        ` : ''}
+
+        <div class="modal-actions">
+            ${isAdmin
+                ? `
+                    <a href="${API_BASE_URL}/admin/books/${book.id}/edit" class="modal-action btn-edit">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <button class="modal-action btn-delete" onclick="deleteBook(${book.id})">
+                        <i class="fas fa-trash"></i> Hapus
+                    </button>
+                `
+                : `
+                    <button class="modal-action btn-borrow"
+                        ${book.available <= 0 ? 'disabled' : ''}
+                        onclick="borrowBook(${book.id})">
+                        <i class="fas fa-book-reader"></i>
+                        ${book.available > 0 ? 'Pinjam Buku' : 'Stok Habis'}
+                    </button>
+                `
+            }
         </div>
     `;
-    
-    modal.classList.add('active');
-    
-    fetch(`${API_BASE_URL}/api/books/${bookId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(book => {
-            const isAdmin = {{ Auth::check() && Auth::user()->role === 'admin' ? 'true' : 'false' }};
-            
-            modalBody.innerHTML = `
-                <div class="modal-header">
-                    <div class="modal-cover-small">
-                        ${book.cover_image 
-                            ? `<img src="${API_BASE_URL}/img/covers/${book.cover_image}" alt="${escapeHtml(book.title)}">`
-                            : `<i class="fas fa-book"></i>`
-                        }
-                    </div>
-                    <div class="modal-title-section">
-                        <h2 class="modal-title">${escapeHtml(book.title)}</h2>
-                        <p class="modal-author">oleh ${escapeHtml(book.author)}</p>
-                    </div>
-                </div>
-                
-                <div class="modal-details-grid">
-                    <div class="detail-row">
-                        <span class="detail-label">ISBN</span>
-                        <span class="detail-value">${escapeHtml(book.isbn) || '-'}</span>
-                    </div>
-                    
-                    <div class="detail-row">
-                        <span class="detail-label">Penerbit</span>
-                        <span class="detail-value">${escapeHtml(book.publisher) || '-'}</span>
-                    </div>
-                    
-                    <div class="detail-row">
-                        <span class="detail-label">Tahun Terbit</span>
-                        <span class="detail-value">${book.publication_year || '-'}</span>
-                    </div>
-                    
-                    <div class="detail-row">
-                        <span class="detail-label">Ketersediaan</span>
-                        <span class="detail-value">
-                            <span class="stock-badge ${book.available > 0 ? 'available' : 'unavailable'}">
-                                <i class="fas fa-circle"></i>
-                                ${book.available} dari ${book.stock} tersedia
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                
-                ${book.description ? `
-                    <div class="modal-description">
-                        <h4>Deskripsi</h4>
-                        <p>${escapeHtml(book.description)}</p>
-                    </div>
-                ` : ''}
-                
-                <div class="modal-actions">
-                    ${isAdmin 
-                        ? `
-                            <a href="${API_BASE_URL}/admin/books/${book.id}/edit" class="modal-action btn-edit">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                            <button class="modal-action btn-delete" onclick="deleteBook(${book.id})">
-                                <i class="fas fa-trash"></i> Hapus
-                            </button>
-                        `
-                        : `
-                            <button class="modal-action btn-borrow" 
-                                ${book.available <= 0 ? 'disabled' : ''}
-                                onclick="borrowBook(${book.id})">
-                                <i class="fas fa-book-reader"></i> 
-                                ${book.available > 0 ? 'Pinjam Buku' : 'Stok Habis'}
-                            </button>
-                        `
-                    }
-                </div>
-            `;
-        })
-        .catch(error => {
-            console.error('Error fetching book details:', error);
-            modalBody.innerHTML = `
-                <div style="text-align: center; padding: 40px;">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 40px; color: #E57373;"></i>
-                    <h3 style="color: var(--wood-dark); margin: 20px 0 10px;">Gagal Memuat Detail Buku</h3>
-                    <p style="color: var(--wood-medium);">Terjadi kesalahan saat mengambil data buku.</p>
-                    <p style="color: var(--text-gray); font-size: 0.9rem; margin-top: 10px;">Error: ${error.message}</p>
-                    <button onclick="closeBookModal()" style="margin-top: 20px; padding: 10px 20px; background: var(--wood-medium); color: white; border: none; border-radius: 8px; cursor: pointer;">
-                        Tutup
-                    </button>
-                </div>
-            `;
-        });
-}
 
+    modal.classList.add('active');
+}
+                
 function closeBookModal() {
     document.getElementById('bookModal').classList.remove('active');
 }
@@ -989,3 +1050,4 @@ document.addEventListener('keydown', function(e) {
     }
 });
 </script>
+@endpush

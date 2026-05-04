@@ -54,17 +54,25 @@
 
     .fav-books-grid {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
         gap: 20px;
         position: relative;
         z-index: 1;
         min-height: 180px;
     }
 
+    .fav-books-grid-5 { grid-template-columns: repeat(5, 1fr); }
+    .fav-books-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .fav-books-grid-2 { grid-template-columns: repeat(2, 1fr); }
+
+    /* Show/hide shelf sets per breakpoint */
+    .fav-shelf-laptop { display: block; }
+    .fav-shelf-tablet { display: none; }
+    .fav-shelf-mobile { display: none; }
+
     .fav-book-item {
         background: white;
         border-radius: 8px;
-        overflow: hidden;
+        overflow: visible;
         box-shadow: 0 6px 15px rgba(0,0,0,0.25);
         transition: all 0.3s;
         cursor: pointer;
@@ -80,11 +88,12 @@
         width: 100%; height: 100%;
         display: flex; align-items: center; justify-content: center;
         overflow: hidden;
+        border-radius: 8px;
     }
     .fav-cover-only img { width: 100%; height: 100%; object-fit: cover; }
     .fav-cover-only i { font-size: 50px; color: rgba(255,255,255,0.4); }
 
-    /* Heart button - always active (merah) di favorit page */
+    /* Heart button */
     .fav-heart-btn {
         position: absolute;
         top: 6px; right: 6px;
@@ -94,9 +103,9 @@
         border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
         cursor: pointer;
-        z-index: 5;
+        z-index: 10;
         box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-        transition: all 0.2s;
+        transition: transform 0.2s;
         font-size: 0.72rem;
         color: #E53935;
     }
@@ -110,27 +119,27 @@
     .empty-state i { font-size: 70px; margin-bottom: 20px; opacity: 0.5; display: block; }
     .empty-state h3 { font-size: 1.5rem; color: white; margin-bottom: 10px; }
     .empty-state a {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: 20px;
-        padding: 12px 24px;
-        background: rgba(255,255,255,0.2);
-        color: white;
-        border-radius: 10px;
-        text-decoration: none;
-        font-weight: 600;
+        display: inline-flex; align-items: center; gap: 8px;
+        margin-top: 20px; padding: 12px 24px;
+        background: rgba(255,255,255,0.2); color: white;
+        border-radius: 10px; text-decoration: none; font-weight: 600;
         transition: background 0.2s;
     }
     .empty-state a:hover { background: rgba(255,255,255,0.3); }
 
     @media (max-width: 768px) {
-        .fav-books-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .fav-shelf-laptop { display: none; }
+        .fav-shelf-tablet { display: block; }
+        .fav-shelf-mobile { display: none; }
         .bookshelf-wrapper { padding: 25px 15px; }
+        .shelf-row { margin-bottom: 40px; }
     }
     @media (max-width: 480px) {
-        .fav-books-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .fav-shelf-laptop { display: none; }
+        .fav-shelf-tablet { display: none; }
+        .fav-shelf-mobile { display: block; }
         .bookshelf-wrapper { padding: 15px 10px; }
+        .shelf-row { margin-bottom: 35px; }
     }
 </style>
 
@@ -149,32 +158,107 @@
             'linear-gradient(135deg, #9575CD, #7E57C2)',
         ];
         $favArray = $favorites->all();
-        $chunked = array_chunk($favArray ?: [], 5);
-        if (empty($chunked)) $chunked = [[]];
+
+        // 3 versi chunk
+        $fav5 = $favArray ? array_chunk(array_pad(array_values($favArray), ceil(count($favArray)/5)*5, null), 5) : [[]];
+        $fav3 = $favArray ? array_chunk(array_pad(array_values($favArray), ceil(count($favArray)/3)*3, null), 3) : [[]];
+        $fav2 = $favArray ? array_chunk(array_pad(array_values($favArray), ceil(count($favArray)/2)*2, null), 2) : [[]];
     @endphp
 
     @if($favorites->count() > 0)
-        @foreach($chunked as $row)
-            <div class="shelf-row">
-                <div class="fav-books-grid">
-                    @foreach($row as $i => $f)
-                        <div class="fav-book-item">
-                            <button class="fav-heart-btn" onclick="event.stopPropagation(); removeFav(this, {{ $f->book->id }})" title="Hapus dari favorit">
-                                <i class="fas fa-heart"></i>
-                            </button>
-                            <div class="fav-cover-only" style="background: {{ $colors[$i % 6] }};">
-                                @if($f->book->cover_image)
-                                    <img src="{{ asset('img/covers/' . $f->book->cover_image) }}" alt="{{ $f->book->title }}">
-                                @else
-                                    <i class="fas fa-book"></i>
-                                @endif
-                            </div>
-                        </div>
-                    @endforeach
+
+        @php
+        // Helper render satu buku favorit
+        $renderFav = function($f, $i, $colors) { return [$f, $i, $colors]; };
+        @endphp
+
+        {{-- LAPTOP: chunk 5 --}}
+        <div class="fav-shelf-laptop">
+            @foreach($fav5 as $row)
+                <div class="shelf-row">
+                    <div class="fav-books-grid fav-books-grid-5">
+                        @foreach($row as $i => $f)
+                            @if($f)
+                                <div class="fav-book-item">
+                                    <button class="fav-heart-btn" onclick="event.stopPropagation(); removeFav(this, {{ $f->book->id }})" title="Hapus dari favorit">
+                                        <i class="fas fa-heart"></i>
+                                    </button>
+                                    <div class="fav-cover-only" style="background: {{ $colors[$i % 6] }};">
+                                        @if($f->book->cover_image)
+                                            <img src="{{ asset('img/covers/' . $f->book->cover_image) }}" alt="{{ $f->book->title }}">
+                                        @else
+                                            <i class="fas fa-book"></i>
+                                        @endif
+                                    </div>
+                                </div>
+                            @else
+                                <div style="visibility:hidden;aspect-ratio:2/3;"></div>
+                            @endif
+                        @endforeach
+                    </div>
+                    <div class="shelf-board"></div>
                 </div>
-                <div class="shelf-board"></div>
-            </div>
-        @endforeach
+            @endforeach
+        </div>
+
+        {{-- TABLET: chunk 3 --}}
+        <div class="fav-shelf-tablet">
+            @foreach($fav3 as $row)
+                <div class="shelf-row">
+                    <div class="fav-books-grid fav-books-grid-3">
+                        @foreach($row as $i => $f)
+                            @if($f)
+                                <div class="fav-book-item">
+                                    <button class="fav-heart-btn" onclick="event.stopPropagation(); removeFav(this, {{ $f->book->id }})" title="Hapus dari favorit">
+                                        <i class="fas fa-heart"></i>
+                                    </button>
+                                    <div class="fav-cover-only" style="background: {{ $colors[$i % 6] }};">
+                                        @if($f->book->cover_image)
+                                            <img src="{{ asset('img/covers/' . $f->book->cover_image) }}" alt="{{ $f->book->title }}">
+                                        @else
+                                            <i class="fas fa-book"></i>
+                                        @endif
+                                    </div>
+                                </div>
+                            @else
+                                <div style="visibility:hidden;aspect-ratio:2/3;"></div>
+                            @endif
+                        @endforeach
+                    </div>
+                    <div class="shelf-board"></div>
+                </div>
+            @endforeach
+        </div>
+
+        {{-- HP: chunk 2 --}}
+        <div class="fav-shelf-mobile">
+            @foreach($fav2 as $row)
+                <div class="shelf-row">
+                    <div class="fav-books-grid fav-books-grid-2">
+                        @foreach($row as $i => $f)
+                            @if($f)
+                                <div class="fav-book-item">
+                                    <button class="fav-heart-btn" onclick="event.stopPropagation(); removeFav(this, {{ $f->book->id }})" title="Hapus dari favorit">
+                                        <i class="fas fa-heart"></i>
+                                    </button>
+                                    <div class="fav-cover-only" style="background: {{ $colors[$i % 6] }};">
+                                        @if($f->book->cover_image)
+                                            <img src="{{ asset('img/covers/' . $f->book->cover_image) }}" alt="{{ $f->book->title }}">
+                                        @else
+                                            <i class="fas fa-book"></i>
+                                        @endif
+                                    </div>
+                                </div>
+                            @else
+                                <div style="visibility:hidden;aspect-ratio:2/3;"></div>
+                            @endif
+                        @endforeach
+                    </div>
+                    <div class="shelf-board"></div>
+                </div>
+            @endforeach
+        </div>
+
     @else
         <div class="empty-state">
             <i class="fas fa-heart"></i>
