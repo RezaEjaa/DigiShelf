@@ -58,7 +58,7 @@
     .section {
         background: white;
         border-radius: 15px;
-        padding: 30px;
+        padding: 25px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     }
 
@@ -66,35 +66,44 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 25px;
+        margin-bottom: 22px;
+        flex-wrap: wrap;
+        gap: 10px;
     }
+
+    .section-header h2 { font-size: 1.1rem; color: var(--text-dark); }
+
+    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
     .users-table {
         width: 100%;
         border-collapse: collapse;
+        min-width: 500px;
     }
 
     .users-table th {
         background: var(--cream);
-        padding: 15px;
+        padding: 13px 14px;
         text-align: left;
         font-weight: 600;
         color: var(--text-dark);
         border-bottom: 2px solid #E0E0E0;
+        font-size: 0.88rem;
+        white-space: nowrap;
     }
 
     .users-table td {
-        padding: 15px;
+        padding: 13px 14px;
         border-bottom: 1px solid #F5F5F5;
+        font-size: 0.88rem;
+        vertical-align: middle;
     }
 
-    .users-table tr:hover {
-        background: #FAFAFA;
-    }
+    .users-table tr:hover { background: #FAFAFA; }
 
     .user-avatar {
-        width: 40px;
-        height: 40px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
         background: linear-gradient(135deg, var(--wood-medium), var(--wood-dark));
         display: flex;
@@ -102,69 +111,72 @@
         justify-content: center;
         color: white;
         font-weight: 600;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+
+    .user-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
     .btn-action {
-        padding: 6px 12px;
+        padding: 5px 11px;
         border-radius: 6px;
         border: none;
         cursor: pointer;
-        font-size: 0.85rem;
-        margin-right: 5px;
+        font-size: 0.8rem;
+        white-space: nowrap;
     }
+    .btn-delete { background: #FFEBEE; color: #C62828; }
+    .btn-delete:hover { background: #C62828; color: white; }
 
-    .btn-delete {
-        background: #FFEBEE;
-        color: #C62828;
-    }
-
+    /* Pagination */
     .pagination-wrapper {
-        margin-top: 25px;
+        margin-top: 22px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
     }
-
-    .pagination-info {
-        color: #94A3B8;
-        font-size: 0.9rem;
-    }
-
-    .pagination-controls {
-        display: flex;
-        gap: 8px;
-    }
+    .pagination-info { color: #94A3B8; font-size: 0.85rem; }
+    .pagination-controls { display: flex; gap: 6px; flex-wrap: wrap; }
 
     .pagination-controls a,
     .pagination-controls span {
-        min-width: 35px;
-        height: 35px;
+        min-width: 33px;
+        height: 33px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 8px;
+        border-radius: 7px;
         text-decoration: none;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+    }
+    .pagination-controls a { background: #F1F5F9; color: #64748B; }
+    .pagination-controls a:hover { background: var(--wood-medium); color: white; }
+    .pagination-controls .active { background: var(--wood-dark); color: white; }
+
+    /* ===========================
+       RESPONSIVE
+    =========================== */
+    @media (max-width: 768px) {
+        .section { padding: 16px; }
+        .users-table th,
+        .users-table td { padding: 10px 10px; font-size: 0.82rem; }
     }
 
-    .pagination-controls a {
-        background: #F1F5F9;
-        color: #64748B;
-    }
-
-    .pagination-controls a:hover {
-        background: var(--wood-medium);
-        color: white;
-    }
-
-    .pagination-controls .active {
-        background: var(--wood-dark);
-        color: white;
+    @media (max-width: 480px) {
+        .section { padding: 12px; }
+        /* Hide less important columns on small phones */
+        .col-registered { display: none; }
     }
 </style>
 
 @if(session('success'))
-    <div style="background: #E8F5E9; color: #2E7D32; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+    <div style="background:#E8F5E9;color:#2E7D32;padding:13px 16px;border-radius:10px;margin-bottom:16px;font-size:0.9rem;">
         {{ session('success') }}
     </div>
 @endif
@@ -175,46 +187,48 @@
     </div>
 
     @if($users->count() > 0)
-        <table class="users-table">
-            <thead>
-                <tr>
-                    <th>Pengguna</th>
-                    <th>Email</th>
-                    <th>Terdaftar</th>
-                    <th>Total Pinjaman</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($users as $user)
+        <div class="table-responsive">
+            <table class="users-table">
+                <thead>
                     <tr>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <div class="user-avatar">
-                                    {{ strtoupper(substr($user->name, 0, 1)) }}
-                                </div>
-                                <strong>{{ $user->name }}</strong>
-                            </div>
-                        </td>
-                        <td>{{ $user->email }}</td>
-                        <td>{{ $user->created_at->format('d M Y') }}</td>
-                        <td>{{ $user->borrowings->count() }}</td>
-                        <td>
-                            <form action="{{ route('admin.users.destroy', $user) }}" 
-                                  method="POST" 
-                                  style="display: inline;"
-                                  onsubmit="return confirm('Yakin ingin menghapus pengguna ini?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-action btn-delete">
-                                    <i class="fas fa-trash"></i> Hapus
-                                </button>
-                            </form>
-                        </td>
+                        <th>Pengguna</th>
+                        <th>Email</th>
+                        <th class="col-registered">Terdaftar</th>
+                        <th>Pinjaman</th>
+                        <th>Aksi</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach($users as $user)
+                        <tr>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-avatar">
+                                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                                    </div>
+                                    <strong>{{ $user->name }}</strong>
+                                </div>
+                            </td>
+                            <td>{{ $user->email }}</td>
+                            <td class="col-registered">{{ $user->created_at->format('d M Y') }}</td>
+                            <td>{{ $user->borrowings->count() }}</td>
+                            <td>
+                                <form action="{{ route('admin.users.destroy', $user) }}"
+                                      method="POST"
+                                      style="display:inline;"
+                                      onsubmit="return confirm('Yakin ingin menghapus pengguna ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-action btn-delete">
+                                        <i class="fas fa-trash"></i> Hapus
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
 
         @if($users->hasPages())
             <div class="pagination-wrapper">
@@ -245,9 +259,9 @@
             </div>
         @endif
     @else
-        <div style="text-align: center; padding: 60px; color: #999;">
-            <i class="fas fa-users" style="font-size: 64px; opacity: 0.3;"></i>
-            <h3 style="margin-top: 20px;">Belum ada pengguna terdaftar</h3>
+        <div style="text-align:center;padding:60px 20px;color:#999;">
+            <i class="fas fa-users" style="font-size:56px;opacity:0.3;"></i>
+            <h3 style="margin-top:16px;font-size:1rem;">Belum ada pengguna terdaftar</h3>
         </div>
     @endif
 </div>

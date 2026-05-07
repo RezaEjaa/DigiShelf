@@ -56,17 +56,15 @@
 @section('content')
 <style>
     .alert {
-        padding: 15px 20px;
+        padding: 13px 18px;
         border-radius: 10px;
-        margin-bottom: 20px;
+        margin-bottom: 18px;
     }
-
     .alert-success {
         background: #E8F5E9;
         color: #2E7D32;
         border-left: 4px solid #2E7D32;
     }
-
     .alert-error {
         background: #FFEBEE;
         color: #C62828;
@@ -74,7 +72,6 @@
     }
 </style>
 
-{{-- Alert Messages --}}
 @if(session('success'))
     <div class="alert alert-success">
         <i class="fas fa-check-circle"></i> {{ session('success') }}
@@ -87,6 +84,6 @@
     </div>
 @endif
 
-{{-- Books Grid Component --}}
+{{-- Books Grid Component — already has its own responsive styles --}}
 @include('components.books-grid', ['books' => $books, 'showSearch' => true])
 @endsection
