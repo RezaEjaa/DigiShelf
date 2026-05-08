@@ -30,6 +30,12 @@
             <span>Kelola Peminjaman</span>
         </a>
     </li>
+        <li><a
+        href="{{ route('admin.verify-qr.index') }}">
+            <i class="fas fa-qrcode"></i>
+            <span>Verifikasi QR</span>
+        </a>
+    </li>
     <li>
         <a href="{{ route('admin.borrowings.history') }}">
             <i class="fas fa-history"></i>
@@ -350,6 +356,11 @@
         <div class="stat-label">Sedang Dipinjam</div>
     </div>
     <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
+        <div class="stat-value">{{ $stats['pending_borrowings'] }}</div>
+        <div class="stat-label">Menunggu Verifikasi</div>
+    </div>
+    <div class="stat-card">
         <div class="stat-icon"><i class="fas fa-users"></i></div>
         <div class="stat-value">{{ $stats['total_users'] }}</div>
         <div class="stat-label">Total Pengguna</div>
@@ -363,26 +374,25 @@
 
 <!-- Active Borrowings -->
 <div class="section">
-    <h2 class="section-title">Sedang Dipinjam</h2>
+    <h2 class="section-title">Peminjaman Aktif & Menunggu</h2>
 
     @if($activeBorrowings->count() > 0)
         <div class="borrowing-list">
-            @foreach($activeBorrowings as $borrowing)
+            @foreach($activeBorrowings as $req)
                 <div class="borrowing-item">
                     <div class="borrowing-info">
-                        <h4>{{ $borrowing->book->title }}</h4>
-                        <p>Peminjam: <span class="borrower-name">{{ $borrowing->user->name }}</span></p>
-                        <p>Dipinjam: {{ $borrowing->borrowed_date->format('d M Y') }}</p>
+                        <h4 style="font-family:'Courier New',monospace;font-size:0.88rem;">{{ $req->qr_code }}</h4>
+                        <p>Peminjam: <span class="borrower-name">{{ $req->user->name }}</span></p>
+                        <p>Buku: {{ $req->items->map(fn($i)=>$i->book->title)->join(', ') }}</p>
+                        <p>Ambil: {{ $req->pickup_date->format('d M Y') }}</p>
                     </div>
                     <div class="borrowing-status">
-                        @if($borrowing->status === 'overdue')
-                            <span class="status-badge overdue">Terlambat</span>
-                        @elseif($borrowing->isDueSoon())
-                            <span class="status-badge due-soon">Segera Jatuh Tempo</span>
+                        @if($req->status === 'pending')
+                            <span class="status-badge due-soon">Menunggu</span>
                         @else
-                            <span class="status-badge active">Aktif</span>
+                            <span class="status-badge active">Dipinjam</span>
                         @endif
-                        <p class="due-date">Jatuh tempo: {{ $borrowing->due_date->format('d M Y') }}</p>
+                        <p class="due-date">Kembali: {{ $req->return_date->format('d M Y') }}</p>
                     </div>
                 </div>
             @endforeach

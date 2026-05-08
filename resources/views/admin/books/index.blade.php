@@ -30,6 +30,12 @@
             <span>Kelola Peminjaman</span>
         </a>
     </li>
+    <li><a
+        href="{{ route('admin.verify-qr.index') }}">
+            <i class="fas fa-qrcode"></i>
+            <span>Verifikasi QR</span>
+        </a>
+    </li>
     <li>
         <a href="{{ route('admin.borrowings.history') }}">
             <i class="fas fa-history"></i>
