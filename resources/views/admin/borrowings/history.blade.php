@@ -9,7 +9,7 @@
     <li><a href="{{ route('admin.books.index') }}"><i class="fas fa-book"></i><span>Kelola Buku</span></a></li>
     <li><a href="{{ route('admin.books.create') }}"><i class="fas fa-plus-circle"></i><span>Tambah Buku</span></a></li>
     <li><a href="{{ route('admin.borrowings.index') }}"><i class="fas fa-exchange-alt"></i><span>Kelola Peminjaman</span></a></li>
-    <li><a href="{{ route('admin.verify-qr.index') }}"><i class="fas fa-qrcode"></i><span>Verifikasi QR</span></a></li>
+    <li><a href="{{ route('admin.verify-qr.index') }}"><i class="fas fa-barcode"></i><span>Verifikasi Kode</span></a></li>
     <li><a href="{{ route('admin.borrowings.history') }}" class="active"><i class="fas fa-history"></i><span>Riwayat Peminjaman</span></a></li>
     <li><a href="{{ route('admin.users.index') }}"><i class="fas fa-users"></i><span>Kelola Pengguna</span></a></li>
     <li class="logout-section">
@@ -57,7 +57,7 @@
             <table class="borrow-table">
                 <thead>
                     <tr>
-                        <th>QR Code</th>
+                        <th>Kode</th>
                         <th>Peminjam</th>
                         <th>Buku</th>
                         <th>Tgl Ambil</th>

@@ -118,14 +118,6 @@
     }
     .empty-state i { font-size: 70px; margin-bottom: 20px; opacity: 0.5; display: block; }
     .empty-state h3 { font-size: 1.5rem; color: white; margin-bottom: 10px; }
-    .empty-state a {
-        display: inline-flex; align-items: center; gap: 8px;
-        margin-top: 20px; padding: 12px 24px;
-        background: rgba(255,255,255,0.2); color: white;
-        border-radius: 10px; text-decoration: none; font-weight: 600;
-        transition: background 0.2s;
-    }
-    .empty-state a:hover { background: rgba(255,255,255,0.3); }
 
     @media (max-width: 768px) {
         .fav-shelf-laptop { display: none; }
@@ -264,7 +256,6 @@
             <i class="fas fa-heart"></i>
             <h3>Belum ada buku favorit</h3>
             <p>Tandai buku favorit Anda dari koleksi buku</p>
-            <a href="{{ route('user.books') }}"><i class="fas fa-book"></i> Lihat Koleksi Buku</a>
         </div>
     @endif
 </div>

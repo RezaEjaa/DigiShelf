@@ -6,54 +6,43 @@
 
 @section('sidebar-menu')
     <li>
-        <a href="{{ route('admin.dashboard') }}">
-            <i class="fas fa-th-large"></i>
-            <span>Dashboard</span>
+        <a href="{{ route('admin.dashboard') }}" >
+            <i class="fas fa-th-large"></i><span>Dashboard</span>
         </a>
     </li>
     <li>
         <a href="{{ route('admin.books.index') }}" class="active">
-            <i class="fas fa-book"></i>
-            <span>Kelola Buku</span>
+            <i class="fas fa-book"></i><span>Kelola Buku</span>
         </a>
     </li>
     <li>
-        <a href="{{ route('admin.books.create') }}">
-            <i class="fas fa-plus-circle"></i>
-            <span>Tambah Buku</span>
+        <a href="{{ route('admin.books.create') }}" >
+            <i class="fas fa-plus-circle"></i><span>Tambah Buku</span>
         </a>
     </li>
     <li>
-        <a href="{{ route('admin.borrowings.index') }}">
-            <i class="fas fa-exchange-alt"></i>
-            <span>Kelola Peminjaman</span>
-        </a>
-    </li>
-        <li><a
-        href="{{ route('admin.verify-qr.index') }}">
-            <i class="fas fa-qrcode"></i>
-            <span>Verifikasi QR</span>
+        <a href="{{ route('admin.borrowings.index') }}" >
+            <i class="fas fa-exchange-alt"></i><span>Kelola Peminjaman</span>
         </a>
     </li>
     <li>
-        <a href="{{ route('admin.borrowings.history') }}">
-            <i class="fas fa-history"></i>
-            <span>Riwayat Peminjaman</span>
+        <a href="{{ route('admin.verify-qr.index') }}" >
+            <i class="fas fa-barcode"></i><span>Verifikasi Kode</span>
         </a>
     </li>
     <li>
-        <a href="{{ route('admin.users.index') }}">
-            <i class="fas fa-users"></i>
-            <span>Kelola Pengguna</span>
+        <a href="{{ route('admin.borrowings.history') }}" >
+            <i class="fas fa-history"></i><span>Riwayat Peminjaman</span>
+        </a>
+    </li>
+    <li>
+        <a href="{{ route('admin.users.index') }}" >
+            <i class="fas fa-users"></i><span>Kelola Pengguna</span>
         </a>
     </li>
     <li class="logout-section">
-        <form action="{{ url('/logout') }}" method="POST" class="logout-form">
-            @csrf
-            <button type="submit">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
-            </button>
+        <form action="{{ url('/logout') }}" method="POST" class="logout-form">@csrf
+            <button type="submit"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
         </form>
     </li>
 @endsection

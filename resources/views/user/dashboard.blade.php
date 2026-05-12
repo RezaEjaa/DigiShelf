@@ -340,29 +340,50 @@
 {{-- SEDANG DIPINJAM --}}
 <div class="section">
     <div class="section-head">
-        <h2>Sedang Dipinjam</h2>
+        <h2>Peminjaman Saya</h2>
         <a href="{{ route('user.borrowings') }}" class="view-all">Lihat Semua →</a>
     </div>
 
     @if($activeBorrowings->count() > 0)
         <div class="borrowing-list">
-            @foreach($activeBorrowings as $borrowing)
-                <div class="borrowing-item">
-                    <div class="borrowing-info">
-                        <h4>{{ $borrowing->book->title }}</h4>
-                        <p><i class="fas fa-calendar"></i> Dipinjam: {{ $borrowing->borrowed_date->format('d M Y') }}</p>
+            @foreach($activeBorrowings as $req)
+                @php $books = $req->items->map(fn($i) => $i->book); @endphp
+                <a href="{{ route('user.borrowings.detail', $req->id) }}"
+                   style="text-decoration:none; color:inherit; display:block;">
+                    <div class="borrowing-item">
+                        <div class="borrowing-info">
+                            {{-- Judul buku (bisa lebih dari satu) --}}
+                            <h4>
+                                @if($books->count() === 1)
+                                    {{ $books->first()->title }}
+                                @else
+                                    {{ $books->first()->title }}
+                                    <span style="font-size:0.78rem;font-weight:500;color:var(--wood-medium);">
+                                        +{{ $books->count() - 1 }} buku lainnya
+                                    </span>
+                                @endif
+                            </h4>
+                            <p>
+                                <i class="fas fa-qrcode"></i>
+                                <span style="font-family:'Courier New',monospace;font-size:0.78rem;">{{ $req->qr_code }}</span>
+                            </p>
+                            <p><i class="fas fa-calendar-check"></i> Ambil: {{ $req->pickup_date->format('d M Y') }}</p>
+                        </div>
+                        <div style="text-align:right; flex-shrink:0;">
+                            @if($req->status === 'pending')
+                                <span class="status-badge due-soon">Menunggu Verifikasi</span>
+                                @if($req->expires_at)
+                                    <div class="due-date">
+                                        Batas: {{ $req->expires_at->format('d M H:i') }}
+                                    </div>
+                                @endif
+                            @else
+                                <span class="status-badge active">Sedang Dipinjam</span>
+                                <div class="due-date">Kembali: {{ $req->return_date->format('d M Y') }}</div>
+                            @endif
+                        </div>
                     </div>
-                    <div style="text-align:right">
-                        @if($borrowing->isOverdue())
-                            <span class="status-badge overdue">Terlambat</span>
-                        @elseif($borrowing->isDueSoon())
-                            <span class="status-badge due-soon">Segera Jatuh Tempo</span>
-                        @else
-                            <span class="status-badge active">Aktif</span>
-                        @endif
-                        <div class="due-date">Jatuh tempo: {{ $borrowing->due_date->format('d M Y') }}</div>
-                    </div>
-                </div>
+                </a>
             @endforeach
         </div>
     @else

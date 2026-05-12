@@ -884,12 +884,14 @@ function openBookModal(bookId) {
                     </button>
                 `
                 : `
-                    <button class="modal-action btn-borrow"
-                        ${book.available <= 0 ? 'disabled' : ''}
-                        onclick="borrowBook(${book.id})">
-                        <i class="fas fa-book-reader"></i>
-                        ${book.available > 0 ? 'Pinjam Buku' : 'Stok Habis'}
-                    </button>
+                    ${book.available > 0
+                        ? `<a href="${API_BASE_URL}/form-peminjaman?book_id=${book.id}" class="modal-action btn-borrow">
+                            <i class="fas fa-book-reader"></i> Pinjam Buku
+                           </a>`
+                        : `<button class="modal-action btn-borrow" disabled>
+                            <i class="fas fa-times-circle"></i> Stok Habis
+                           </button>`
+                    }
                 `
             }
         </div>
@@ -908,70 +910,7 @@ function closeModalOnOverlay(event) {
     }
 }
 
-// Function untuk borrow book
-function borrowBook(bookId) {
-    if(typeof Swal !== 'undefined') {
-        Swal.fire({
-            title: 'Pinjam Buku?',
-            text: 'Buku harus dikembalikan dalam 14 hari',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#66BB6A',
-            cancelButtonColor: '#E0E0E0',
-            confirmButtonText: 'Ya, Pinjam',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch(`/pinjam/${bookId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    }
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if(data.success) {
-                        Swal.fire({
-                            title: 'Berhasil!',
-                            text: data.message,
-                            icon: 'success',
-                            confirmButtonColor: '#66BB6A'
-                        }).then(() => {
-                            closeBookModal();
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire('Gagal', data.message, 'error');
-                    }
-                })
-                .catch(() => {
-                    Swal.fire('Error', 'Terjadi kesalahan', 'error');
-                });
-            }
-        });
-    } else {
-        // Fallback jika SweetAlert belum dimuat
-        if(confirm('Pinjam buku ini? Harus dikembalikan dalam 14 hari')) {
-            fetch(`/pinjam/${bookId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
-            .then(r => r.json())
-            .then(data => {
-                alert(data.message);
-                if(data.success) {
-                    closeBookModal();
-                    location.reload();
-                }
-            })
-            .catch(() => alert('Terjadi kesalahan'));
-        }
-    }
-}
+// borrowBook removed — now redirects to /form-peminjaman via anchor tag
 
 function deleteBook(bookId) {
     if (confirm('Apakah Anda yakin ingin menghapus buku ini? Data yang sudah dihapus tidak dapat dikembalikan!')) {

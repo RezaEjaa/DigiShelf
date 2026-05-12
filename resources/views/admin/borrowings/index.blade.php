@@ -9,7 +9,7 @@
     <li><a href="{{ route('admin.books.index') }}"><i class="fas fa-book"></i><span>Kelola Buku</span></a></li>
     <li><a href="{{ route('admin.books.create') }}"><i class="fas fa-plus-circle"></i><span>Tambah Buku</span></a></li>
     <li><a href="{{ route('admin.borrowings.index') }}" class="active"><i class="fas fa-exchange-alt"></i><span>Kelola Peminjaman</span></a></li>
-    <li><a href="{{ route('admin.verify-qr.index') }}"><i class="fas fa-qrcode"></i><span>Verifikasi QR</span></a></li>
+    <li><a href="{{ route('admin.verify-qr.index') }}"><i class="fas fa-barcode"></i><span>Verifikasi Kode</span></a></li>
     <li><a href="{{ route('admin.borrowings.history') }}"><i class="fas fa-history"></i><span>Riwayat Peminjaman</span></a></li>
     <li><a href="{{ route('admin.users.index') }}"><i class="fas fa-users"></i><span>Kelola Pengguna</span></a></li>
     <li class="logout-section">
@@ -75,7 +75,7 @@
     <div class="section-header">
         <h2>Peminjaman Aktif & Menunggu ({{ $requests->total() }})</h2>
         <a href="{{ route('admin.verify-qr.index') }}" class="btn-qr">
-            <i class="fas fa-qrcode"></i> Scan QR Code
+            <i class="fas fa-barcode"></i> Verifikasi Kode
         </a>
     </div>
 
@@ -84,7 +84,7 @@
             <table class="borrow-table">
                 <thead>
                     <tr>
-                        <th>QR Code</th>
+                        <th>Kode</th>
                         <th>Peminjam</th>
                         <th>Buku</th>
                         <th>Tgl Ambil</th>
@@ -106,20 +106,18 @@
                             <td><span class="badge badge-{{ $req->status }}">{{ $req->statusLabel() }}</span></td>
                             <td>
                                 @if($req->isPending())
-                                    <form action="{{ route('admin.verify-qr.confirm') }}" method="POST" style="display:inline;">
+                                    <form action="{{ route('admin.verify-qr.confirm') }}" method="POST" style="display:inline;" data-confirm="Konfirmasi peminjaman dan serahkan buku ke user?">
                                         @csrf
                                         <input type="hidden" name="request_id" value="{{ $req->id }}">
-                                        <button type="submit" class="btn-action btn-verify"
-                                                onclick="return confirm('Konfirmasi peminjaman ini?')">
+                                        <button type="submit" class="btn-action btn-verify">
                                             <i class="fas fa-check"></i> Verifikasi
                                         </button>
                                     </form>
                                 @elseif($req->isActive())
-                                    <form action="{{ route('admin.verify-qr.return') }}" method="POST" style="display:inline;">
+                                    <form action="{{ route('admin.verify-qr.return') }}" method="POST" style="display:inline;" data-confirm="Konfirmasi buku telah dikembalikan?">
                                         @csrf
                                         <input type="hidden" name="request_id" value="{{ $req->id }}">
-                                        <button type="submit" class="btn-action btn-ret"
-                                                onclick="return confirm('Konfirmasi pengembalian buku?')">
+                                        <button type="submit" class="btn-action btn-ret">
                                             <i class="fas fa-undo"></i> Kembalikan
                                         </button>
                                     </form>

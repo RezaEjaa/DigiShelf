@@ -30,10 +30,10 @@
             <span>Kelola Peminjaman</span>
         </a>
     </li>
-    <li><a
-        href="{{ route('admin.verify-qr.index') }}">
-            <i class="fas fa-qrcode"></i>
-            <span>Verifikasi QR</span>
+    <li>
+        <a href="{{ route('admin.verify-qr.index') }}">
+            <i class="fas fa-barcode"></i>
+            <span>Verifikasi Kode</span>
         </a>
     </li>
     <li>
