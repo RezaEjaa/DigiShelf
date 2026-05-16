@@ -60,7 +60,7 @@ class UserController extends Controller
             });
         }
 
-        $books = $query->latest()->paginate(24);
+        $books = $query->latest()->paginate(20);
 
         if ($request->ajax() || $request->wantsJson()) {
             return view('user.books', compact('books'));
