@@ -11,6 +11,15 @@ use Carbon\Carbon;
 
 class BorrowController extends Controller
 {
+    public function scan(string $qrCode)
+    {
+        $borrowingRequest = BorrowingRequest::where('qr_code', strtoupper($qrCode))
+            ->with('user')
+            ->firstOrFail();
+
+        return view('user.qr-scan', compact('borrowingRequest'));
+    }
+
     // ── GET /form-peminjaman ──────────────────────────────────
     public function form(Request $request)
     {

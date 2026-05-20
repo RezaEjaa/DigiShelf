@@ -318,8 +318,8 @@ $colors = [
 @if(!$req->isCancelled())
 <script>
 // ── QR Data: unik per peminjaman (pakai qr_code yg sudah dibuat unique di DB) ──
-// Isi QR: DIGI-XXXXXXXX
-const QR_TEXT = @json($req->qr_code);
+// Isi QR: URL halaman scan yang menampilkan kode DIGI-XXXXXXXX.
+const QR_TEXT = @json(route('borrow.scan', $req->qr_code));
 const QR_SIZE = window.innerWidth <= 600 ? 160 : 190;
 
 function buildQR() {

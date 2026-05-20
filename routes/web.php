@@ -13,6 +13,7 @@ use App\Http\Controllers\FavoriteController;
 
 // ── Public ────────────────────────────────────────────────────
 Route::get('/', fn () => view('welcome'));
+Route::get('/scan-peminjaman/{qr_code}', [BorrowController::class, 'scan'])->name('borrow.scan');
 
 // ── Auth ──────────────────────────────────────────────────────
 Route::get('/login',    [AuthController::class, 'showLogin'])->name('login');
