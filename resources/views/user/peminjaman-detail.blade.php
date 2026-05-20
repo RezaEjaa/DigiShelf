@@ -318,8 +318,8 @@ $colors = [
 @if(!$req->isCancelled())
 <script>
 // ── QR Data: unik per peminjaman (pakai qr_code yg sudah dibuat unique di DB) ──
-// Format: DIGI-XXXXXXXX|user|pickup|return|id
-const QR_TEXT = "{{ $req->qr_code }}|{{ addslashes($req->user->name) }}|{{ $req->pickup_date->format('d-m-Y') }}|{{ $req->return_date->format('d-m-Y') }}|{{ $req->id }}";
+// Isi QR: DIGI-XXXXXXXX
+const QR_TEXT = @json($req->qr_code);
 const QR_SIZE = window.innerWidth <= 600 ? 160 : 190;
 
 function buildQR() {

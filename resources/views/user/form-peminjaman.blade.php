@@ -465,6 +465,8 @@
                 <i class="fas fa-info-circle"></i>
                 Setelah submit Anda mendapat <strong>QR Code</strong>.
                 Tunjukkan ke petugas saat mengambil buku.<br><br>
+                <i class="fas fa-calendar-check"></i>
+                Tanggal pengembalian hanya bisa dipilih maksimal <strong>4 hari</strong> setelah tanggal pengambilan.<br><br>
                 <i class="fas fa-clock"></i>
                 <strong>Auto-batal</strong> jika tidak diverifikasi dalam <strong>24 jam</strong>.
             </div>
@@ -536,7 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     updateReturnMin();
     pickup.addEventListener('change', () => { updateReturnMin(); saveCart(); });
-    ret.addEventListener('change', saveCart);
+    ret.addEventListener('change', () => { enforceReturnRange(); saveCart(); });
 
     // Restore cart dari session (ganti halaman pagination)
     restoreCart();
@@ -558,13 +560,31 @@ function updateReturnMin() {
     const pickup = document.getElementById('pickup_date').value;
     const ret = document.getElementById('return_date');
     if (pickup) {
-        const d = new Date(pickup); d.setDate(d.getDate() + 1);
-        ret.min = d.toISOString().split('T')[0];
-        if (!ret.value || ret.value <= pickup) {
-            const def = new Date(pickup); def.setDate(def.getDate() + 14);
-            ret.value = def.toISOString().split('T')[0];
+        const minDate = addDays(pickup, 1);
+        const maxDate = addDays(pickup, 4);
+        ret.min = minDate;
+        ret.max = maxDate;
+        if (!ret.value || ret.value < minDate || ret.value > maxDate) {
+            ret.value = minDate;
         }
     }
+}
+
+function enforceReturnRange() {
+    const pickup = document.getElementById('pickup_date').value;
+    const ret = document.getElementById('return_date');
+    if (!pickup || !ret.value) return;
+
+    const minDate = addDays(pickup, 1);
+    const maxDate = addDays(pickup, 4);
+    if (ret.value < minDate) ret.value = minDate;
+    if (ret.value > maxDate) ret.value = maxDate;
+}
+
+function addDays(dateString, days) {
+    const date = new Date(dateString + 'T00:00:00');
+    date.setDate(date.getDate() + days);
+    return date.toISOString().split('T')[0];
 }
 
 // ── Toggle book ───────────────────────────────────────────────

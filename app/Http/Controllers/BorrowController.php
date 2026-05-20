@@ -74,6 +74,15 @@ class BorrowController extends Controller
             'return_date.after'    => 'Tanggal pengembalian harus setelah tanggal pengambilan.',
         ]);
 
+        $pickupDate = Carbon::parse($request->pickup_date)->startOfDay();
+        $returnDate = Carbon::parse($request->return_date)->startOfDay();
+
+        if ($returnDate->gt($pickupDate->copy()->addDays(4))) {
+            return back()
+                ->withErrors(['return_date' => 'Tanggal pengembalian maksimal 4 hari setelah tanggal pengambilan.'])
+                ->withInput();
+        }
+
         $bookIds = array_unique($request->book_ids);
 
         // Cek batas maksimal (termasuk yg sedang aktif)
